@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JUNBI Pro — Instructor Agreement</title>
+<style>
+  :root {
+    --brand: #1a1a2e;
+    --accent: #e94560;
+    --bg: #f8f9fa;
+    --card: #ffffff;
+    --text: #333333;
+    --muted: #777777;
+    --border: #e0e0e0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .header {
+    background: var(--brand);
+    color: white;
+    text-align: center;
+    padding: 32px 20px 24px;
+  }
+  .header h1 { font-size: 28px; font-weight: 700; letter-spacing: 2px; }
+  .header p { color: rgba(255,255,255,0.7); font-size: 14px; margin-top: 4px; }
+  .container { max-width: 800px; margin: 0 auto; padding: 24px 20px 60px; }
+  .status-bar {
+    display: flex; align-items: center; gap: 10px;
+    background: #fff3cd; border: 1px solid #ffc107;
+    border-radius: 8px; padding: 12px 16px; margin-bottom: 24px;
+    font-size: 14px;
+  }
+  .status-bar.signed {
+    background: #d4edda; border-color: #28a745;
+  }
+  .status-icon { font-size: 20px; }
+  .contract-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .contract-card h2 {
+    font-size: 18px; color: var(--brand);
+    margin-bottom: 16px; padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent);
+  }
+  .section { margin-bottom: 20px; }
+  .section h3 {
+    font-size: 14px; font-weight: 700;
+    color: var(--brand); margin-bottom: 6px;
+  }
+  .section p { font-size: 13.5px; color: #444; text-align: justify; }
+  .section .indent { margin-left: 20px; margin-top: 4px; }
+
+  /* Signing area */
+  .sign-card {
+    background: var(--card);
+    border: 2px solid var(--accent);
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: 0 2px 12px rgba(233,69,96,0.08);
+  }
+  .sign-card h2 {
+    font-size: 18px; color: var(--brand);
+    margin-bottom: 20px; text-align: center;
+  }
+  .form-group { margin-bottom: 20px; }
+  .form-group label {
+    display: block; font-size: 13px;
+    font-weight: 600; color: var(--brand); margin-bottom: 6px;
+  }
+  .form-group input[type="text"],
+  .form-group input[type="date"] {
+    width: 100%; padding: 10px 14px;
+    border: 1px solid var(--border); border-radius: 8px;
+    font-size: 15px; font-family: inherit;
+    transition: border-color 0.2s;
+  }
+  .form-group input:focus {
+    outline: none; border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(233,69,96,0.1);
+  }
+
+  /* Signature pad */
+  .sig-container {
+    position: relative;
+    border: 2px dashed var(--border);
+    border-radius: 8px;
+    background: #fafafa;
+    height: 150px;
+    cursor: crosshair;
+    transition: border-color 0.2s;
+  }
+  .sig-container:hover { border-color: var(--accent); }
+  .sig-container canvas {
+    width: 100%; height: 100%;
+    border-radius: 6px;
+  }
+  .sig-placeholder {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    color: #bbb; font-size: 14px;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .clear-btn {
+    display: inline-block; margin-top: 8px;
+    background: none; border: none; color: var(--accent);
+    font-size: 13px; cursor: pointer; text-decoration: underline;
+  }
+
+  /* Checkbox */
+  .agree-row {
+    display: flex; align-items: flex-start; gap: 10px;
+    margin: 20px 0;
+  }
+  .agree-row input[type="checkbox"] {
+    margin-top: 3px; width: 18px; height: 18px;
+    accent-color: var(--accent);
+  }
+  .agree-row label { font-size: 13.5px; color: #444; cursor: pointer; }
+
+  /* Submit button */
+  .submit-btn {
+    display: block; width: 100%;
+    padding: 14px; font-size: 16px; font-weight: 700;
+    color: white; background: var(--accent);
+    border: none; border-radius: 10px; cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    letter-spacing: 0.5px;
+  }
+  .submit-btn:hover { background: #d63851; }
+  .submit-btn:active { transform: scale(0.98); }
+  .submit-btn:disabled {
+    background: #ccc; cursor: not-allowed;
+    transform: none;
+  }
+
+  /* Confirmation overlay */
+  .confirmation {
+    display: none;
+    text-align: center;
+    padding: 40px 20px;
+  }
+  .confirmation .checkmark {
+    width: 72px; height: 72px;
+    border-radius: 50%; background: #28a745;
+    display: inline-flex; align-items: center; justify-content: center;
+    margin-bottom: 16px;
+  }
+  .confirmation .checkmark svg { width: 36px; height: 36px; }
+  .confirmation h2 { color: var(--brand); margin-bottom: 8px; }
+  .confirmation p { color: var(--muted); font-size: 14px; }
+
+  @media (max-width: 600px) {
+    .contract-card, .sign-card { padding: 20px; }
+    .header h1 { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>JUNBI PRO</h1>
+  <p>Independent Instructor Agreement</p>
+</div>
+
+<div class="container">
+
+  <div class="status-bar" id="statusBar">
+    <span class="status-icon">&#9888;&#65039;</span>
+    <span><strong>Action required</strong> — Please review the agreement below and provide your signature.</span>
+  </div>
+
+  <!-- Contract Content -->
+  <div class="contract-card" id="contractCard">
+    <h2>Agreement Terms</h2>
+
+    <div class="section">
+      <h3>1. Engagement &amp; Services</h3>
+      <p>The Company engages the Instructor to provide taekwondo instruction, training, and related educational services on behalf of JUNBI Pro. The specific scope, schedule, and location of Services shall be mutually agreed upon in writing or via the Company's scheduling platform.</p>
+    </div>
+
+    <div class="section">
+      <h3>2. Independent Contractor Status</h3>
+      <p>The Instructor is an independent contractor and not an employee, partner, agent, or joint venturer of the Company. The Instructor shall not be entitled to any employee benefits. The Instructor is solely responsible for all applicable taxes, including self-employment taxes.</p>
+    </div>
+
+    <div class="section">
+      <h3>3. Compensation</h3>
+      <p>The Company shall compensate the Instructor according to the following package structure:</p>
+      <p class="indent"><strong>a) Starter Package — $500:</strong> Includes nine (9) training drills plus one (1) intro/promo video. Payment is made upon delivery of the completed content.</p>
+      <p class="indent"><strong>b) Continuation Packages — $200 each:</strong> Each continuation package includes five (5) additional training drills. Once the Instructor reaches fifteen (15) drills live on the platform, continuation packages increase to <strong>$300 each</strong>. Continuation packages are offered at the sole discretion of the Company. The Instructor has no obligation or entitlement beyond the initial Starter Package, and the Company is under no obligation to offer additional packages.</p>
+      <p class="indent">There is no cap on continuation packages should the Company choose to offer them. For reference:</p>
+      <p class="indent" style="margin-left:36px;">
+        &bull; Starter only (9 drills + 1 intro video): <strong>$500</strong><br>
+        &bull; Starter + 2 continuations (19 drills): <strong>$900</strong><br>
+        &bull; Starter + 5 continuations (34 drills): <strong>$1,500</strong><br>
+        &bull; Starter + 10 continuations (59 drills): <strong>$2,500</strong>
+      </p>
+      <p class="indent"><strong>c) Payment Terms:</strong> The Company shall issue payment within <strong>thirty (30) days</strong> of approved submitted videos. The Instructor must submit completed video content for review and approval prior to payment being processed.</p>
+      <p class="indent"><strong>d) Content Revisions:</strong> The Company reserves the right to request revisions to submitted video content prior to approval. The Instructor shall complete up to <strong>two (2) rounds of revisions</strong> per video at no additional cost. Revisions beyond two rounds shall be subject to mutual agreement between the Parties.</p>
+    </div>
+
+    <div class="section">
+      <h3>4. Instructor Conduct</h3>
+      <p>The Instructor agrees to uphold the standards and reputation of JUNBI Pro at all times. In particular:</p>
+      <p class="indent"><strong>a)</strong> The Instructor shall not reference, mention, or display the name "ATA" (American Taekwondo Association) or any ATA-affiliated branding, logos, or materials in any instructional videos, digital content, or promotional materials produced in connection with JUNBI Pro.</p>
+      <p class="indent"><strong>b)</strong> JUNBI Pro does not facilitate private lessons. The Instructor shall not accept, arrange, or conduct any private lessons with students without first obtaining written permission from the student's primary instructor of record.</p>
+      <p class="indent"><strong>c)</strong> All instructional videos must be filmed while wearing the official JUNBI shirt provided by the Company at no cost to the Instructor.</p>
+    </div>
+
+    <div class="section">
+      <h3>5. Video Content Exclusivity</h3>
+      <p>JUNBI Pro shall retain exclusive rights to all instructional video content produced by the Instructor. Videos shall be hosted exclusively on <strong>junbitraining.com</strong> and shall not be published on any other platform without prior written permission of the Company. For the avoidance of doubt, all video content shall remain published on the JUNBI Pro platform following termination of this Agreement, and the Instructor shall have no right to request removal of such content.</p>
+    </div>
+
+    <div class="section">
+      <h3>6. Confidentiality</h3>
+      <p>The Instructor agrees to keep confidential all proprietary information, business strategies, curricula, student data, and training methodologies for the term of this Agreement and for two (2) years following termination.</p>
+    </div>
+
+    <div class="section">
+      <h3>7. Intellectual Property</h3>
+      <p>Any instructional materials, video content, curricula, or training programs created in connection with the Services shall be works made for hire and the exclusive property of the Company.</p>
+    </div>
+
+    <div class="section">
+      <h3>8. Likeness &amp; Promotional Rights</h3>
+      <p>The Instructor grants the Company a perpetual, royalty-free, worldwide license to use the Instructor's name, likeness, image, voice, biography, and photographs in connection with the promotion, marketing, and distribution of JUNBI Pro content, including use on junbitraining.com, social media channels, advertising materials, and third-party promotional partnerships. This license shall survive termination of this Agreement.</p>
+    </div>
+
+    <div class="section">
+      <h3>9. Liability &amp; Indemnification</h3>
+      <p>The Instructor shall maintain appropriate personal liability insurance and agrees to indemnify, defend, and hold harmless the Company from any claims arising from the Instructor's performance of Services, negligence, or breach of this Agreement.</p>
+    </div>
+
+    <div class="section">
+      <h3>10. Term &amp; Termination</h3>
+      <p>This Agreement shall commence on the Effective Date. The Instructor's initial commitment is limited to the Starter Package described in Section 3(a). Beyond the Starter Package, no ongoing term or obligation exists unless the Company offers, and the Instructor accepts, additional Continuation Packages. Either Party may terminate with thirty (30) days' written notice. The Company may terminate immediately for cause. Sections 4, 5, 6, 7, 8, and 9 shall survive termination.</p>
+    </div>
+
+    <div class="section">
+      <h3>11. Governing Law</h3>
+      <p>This Agreement shall be governed by and construed in accordance with applicable state laws. Disputes shall be resolved through binding arbitration.</p>
+    </div>
+
+    <div class="section">
+      <h3>12. Entire Agreement</h3>
+      <p>This Agreement constitutes the entire agreement between the Parties and supersedes all prior understandings. It may only be amended in writing signed by both Parties.</p>
+    </div>
+  </div>
+
+  <!-- Signing Section -->
+  <div class="sign-card" id="signCard">
+    <h2>Sign This Agreement</h2>
+
+    <div class="form-group">
+      <label for="fullName">Full Legal Name</label>
+      <input type="text" id="fullName" placeholder="Enter your full legal name">
+    </div>
+
+    <div class="form-group">
+      <label>Signature</label>
+      <div class="sig-container" id="sigContainer">
+        <canvas id="sigCanvas"></canvas>
+        <div class="sig-placeholder" id="sigPlaceholder">Draw your signature here</div>
+      </div>
+      <button class="clear-btn" id="clearSig">Clear signature</button>
+    </div>
+
+    <div class="form-group">
+      <label for="signDate">Date</label>
+      <input type="date" id="signDate">
+    </div>
+
+    <div class="agree-row">
+      <input type="checkbox" id="agreeCheck">
+      <label for="agreeCheck">I have read and agree to all the terms and conditions of the JUNBI Pro Independent Instructor Agreement.</label>
+    </div>
+
+    <button class="submit-btn" id="submitBtn" disabled>Sign Agreement</button>
+  </div>
+
+  <!-- Confirmation (hidden by default) -->
+  <div class="confirmation" id="confirmation">
+    <div class="checkmark">
+      <svg fill="none" stroke="white" stroke-width="3" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+      </svg>
+    </div>
+    <h2>Agreement Signed Successfully</h2>
+    <p id="confirmText"></p>
+  </div>
+
+</div>
+
+<!-- EmailJS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+<script>
+(function() {
+  // ============================================================
+  // EmailJS Configuration — Replace these with your actual values
+  // See setup instructions provided separately
+  // ============================================================
+  const EMAILJS_PUBLIC_KEY = 'xmn1Md88mOHJyr01-';
+  const EMAILJS_SERVICE_ID = 'service_drrvedu';
+  const EMAILJS_TEMPLATE_ID = 'template_imo5bgf';
+
+  emailjs.init(EMAILJS_PUBLIC_KEY);
+
+  // --- Signature Pad ---
+  const canvas = document.getElementById('sigCanvas');
+  const ctx = canvas.getContext('2d');
+  const container = document.getElementById('sigContainer');
+  const placeholder = document.getElementById('sigPlaceholder');
+  let drawing = false, hasSig = false;
+
+  function resizeCanvas() {
+    const rect = container.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+    ctx.strokeStyle = '#1a1a2e';
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+  }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+
+  function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const t = e.touches ? e.touches[0] : e;
+    return { x: t.clientX - rect.left, y: t.clientY - rect.top };
+  }
+
+  function startDraw(e) {
+    e.preventDefault();
+    drawing = true;
+    hasSig = true;
+    placeholder.style.opacity = '0';
+    const p = getPos(e);
+    ctx.beginPath();
+    ctx.moveTo(p.x, p.y);
+    checkReady();
+  }
+  function draw(e) {
+    if (!drawing) return;
+    e.preventDefault();
+    const p = getPos(e);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+  }
+  function stopDraw() { drawing = false; }
+
+  canvas.addEventListener('mousedown', startDraw);
+  canvas.addEventListener('mousemove', draw);
+  canvas.addEventListener('mouseup', stopDraw);
+  canvas.addEventListener('mouseleave', stopDraw);
+  canvas.addEventListener('touchstart', startDraw, { passive: false });
+  canvas.addEventListener('touchmove', draw, { passive: false });
+  canvas.addEventListener('touchend', stopDraw);
+
+  document.getElementById('clearSig').addEventListener('click', function() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    hasSig = false;
+    placeholder.style.opacity = '1';
+    checkReady();
+  });
+
+  // --- Form validation ---
+  const nameInput = document.getElementById('fullName');
+  const dateInput = document.getElementById('signDate');
+  const agreeCheck = document.getElementById('agreeCheck');
+  const submitBtn = document.getElementById('submitBtn');
+
+  // Set today's date as default
+  dateInput.value = new Date().toISOString().split('T')[0];
+
+  function checkReady() {
+    const ready = nameInput.value.trim() && hasSig && dateInput.value && agreeCheck.checked;
+    submitBtn.disabled = !ready;
+  }
+
+  nameInput.addEventListener('input', checkReady);
+  dateInput.addEventListener('input', checkReady);
+  agreeCheck.addEventListener('change', checkReady);
+
+  // --- Submit ---
+  submitBtn.addEventListener('click', function() {
+    if (submitBtn.disabled) return;
+
+    const name = nameInput.value.trim();
+    const date = dateInput.value;
+    const signatureImage = canvas.toDataURL('image/png');
+    const formattedDate = new Date(date).toLocaleDateString('en-US', {
+      year: 'numeric', month: 'long', day: 'numeric'
+    });
+
+    // Disable button and show sending state
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending...';
+
+    // Send via EmailJS
+    emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+      instructor_name: name,
+      sign_date: formattedDate,
+      signature_image: signatureImage,
+      agreement_version: 'JUNBI Pro Instructor Agreement v1.0',
+      signed_at: new Date().toISOString()
+    })
+    .then(function() {
+      // Success — show confirmation
+      document.getElementById('contractCard').style.display = 'none';
+      document.getElementById('signCard').style.display = 'none';
+
+      const statusBar = document.getElementById('statusBar');
+      statusBar.className = 'status-bar signed';
+      statusBar.innerHTML = '<span class="status-icon">&#9989;</span><span><strong>Completed</strong> — This agreement has been signed and submitted.</span>';
+
+      const conf = document.getElementById('confirmation');
+      conf.style.display = 'block';
+      document.getElementById('confirmText').textContent =
+        'Signed by ' + name + ' on ' + formattedDate +
+        '. A copy has been sent to JUNBI Pro for your records.';
+    })
+    .catch(function(error) {
+      // Error — let them retry
+      console.error('EmailJS error:', error);
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Sign Agreement';
+      alert('There was an issue submitting your signature. Please try again. If the problem persists, contact JUNBI Pro directly.');
+    });
+  });
+})();
+</script>
+</body>
+</html>
