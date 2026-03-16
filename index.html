@@ -306,13 +306,11 @@
 
 <!-- EmailJS SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<!-- jsPDF for generating signed PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
 (function() {
-  // ============================================================
-  // EmailJS Configuration — Replace these with your actual values
-  // See setup instructions provided separately
-  // ============================================================
   const EMAILJS_PUBLIC_KEY = 'xmn1Md88mOHJyr01-';
   const EMAILJS_SERVICE_ID = 'service_drrvedu';
   const EMAILJS_TEMPLATE_ID = 'template_imo5bgf';
@@ -384,7 +382,6 @@
   const agreeCheck = document.getElementById('agreeCheck');
   const submitBtn = document.getElementById('submitBtn');
 
-  // Set today's date as default
   dateInput.value = new Date().toISOString().split('T')[0];
 
   function checkReady() {
@@ -395,6 +392,169 @@
   nameInput.addEventListener('input', checkReady);
   dateInput.addEventListener('input', checkReady);
   agreeCheck.addEventListener('change', checkReady);
+
+  // --- Generate Signed PDF ---
+  function generateSignedPDF(name, formattedDate, signatureImage) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: 'mm', format: 'letter' });
+    const pageW = doc.internal.pageSize.getWidth();
+    const margin = 20;
+    const contentW = pageW - margin * 2;
+    let y = 20;
+
+    // Header
+    doc.setFontSize(22);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(26, 26, 46);
+    doc.text('JUNBI Pro', pageW / 2, y, { align: 'center' });
+    y += 8;
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100);
+    doc.text('Independent Instructor Agreement', pageW / 2, y, { align: 'center' });
+    y += 4;
+    doc.setDrawColor(233, 69, 96);
+    doc.setLineWidth(0.7);
+    doc.line(margin, y, pageW - margin, y);
+    y += 10;
+
+    // Contract sections
+    doc.setTextColor(50);
+    doc.setFontSize(10);
+
+    const sections = [
+      { title: '1. Engagement & Services', body: 'The Company engages the Instructor to provide taekwondo instruction, training, and related educational services on behalf of JUNBI Pro. The specific scope, schedule, and location of Services shall be mutually agreed upon in writing or via the Company\'s scheduling platform.' },
+      { title: '2. Independent Contractor Status', body: 'The Instructor is an independent contractor and not an employee, partner, agent, or joint venturer of the Company. The Instructor shall not be entitled to any employee benefits. The Instructor is solely responsible for all applicable taxes, including self-employment taxes.' },
+      { title: '3. Compensation', body: 'a) Starter Package — $500: Includes nine (9) training drills plus one (1) intro/promo video. Payment upon delivery.\n\nb) Continuation Packages — $200 each: Five (5) additional drills per package. Increases to $300 each after 15 drills live. Continuation packages are offered at the sole discretion of the Company. No obligation beyond the Starter Package.\n\nc) Payment Terms: Payment within thirty (30) days of approved submitted videos.\n\nd) Content Revisions: Up to two (2) rounds of revisions per video at no additional cost.' },
+      { title: '4. Instructor Conduct', body: 'a) The Instructor shall not reference "ATA" or any ATA-affiliated branding in any instructional videos or promotional materials.\n\nb) JUNBI Pro does not facilitate private lessons. The Instructor shall not conduct private lessons without written permission from the student\'s primary instructor.\n\nc) All instructional videos must be filmed wearing the official JUNBI shirt provided at no cost.' },
+      { title: '5. Video Content Exclusivity', body: 'JUNBI Pro retains exclusive rights to all instructional video content. Videos shall be hosted exclusively on junbitraining.com. All content remains on the platform following termination, and the Instructor has no right to request removal.' },
+      { title: '6. Confidentiality', body: 'The Instructor agrees to keep confidential all proprietary information for the term of this Agreement and for two (2) years following termination.' },
+      { title: '7. Intellectual Property', body: 'All materials created in connection with the Services are works made for hire and the exclusive property of the Company.' },
+      { title: '8. Likeness & Promotional Rights', body: 'The Instructor grants the Company a perpetual, royalty-free, worldwide license to use their name, likeness, image, voice, and photographs for promotion and marketing. This license survives termination.' },
+      { title: '9. Liability & Indemnification', body: 'The Instructor shall maintain liability insurance and indemnify the Company from any claims arising from their performance, negligence, or breach.' },
+      { title: '10. Term & Termination', body: 'The Instructor\'s initial commitment is limited to the Starter Package. No ongoing obligation beyond that unless additional packages are offered and accepted. Either Party may terminate with thirty (30) days\' notice. Sections 4-9 survive termination.' },
+      { title: '11. Governing Law', body: 'This Agreement shall be governed by applicable state laws. Disputes resolved through binding arbitration.' },
+      { title: '12. Entire Agreement', body: 'This Agreement constitutes the entire agreement and supersedes all prior understandings. Amendments must be in writing signed by both Parties.' }
+    ];
+
+    sections.forEach(function(sec) {
+      // Check if we need a new page
+      if (y > 245) {
+        doc.addPage();
+        y = 20;
+      }
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(26, 26, 46);
+      doc.setFontSize(10.5);
+      doc.text(sec.title, margin, y);
+      y += 5;
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(60);
+      doc.setFontSize(9.5);
+      var lines = doc.splitTextToSize(sec.body, contentW);
+      lines.forEach(function(line) {
+        if (y > 255) {
+          doc.addPage();
+          y = 20;
+        }
+        doc.text(line, margin, y);
+        y += 4.2;
+      });
+      y += 4;
+    });
+
+    // --- Signature Page ---
+    doc.addPage();
+    y = 30;
+
+    doc.setDrawColor(233, 69, 96);
+    doc.setLineWidth(0.7);
+    doc.line(margin, 20, pageW - margin, 20);
+
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(26, 26, 46);
+    doc.text('Signature Page', pageW / 2, y, { align: 'center' });
+    y += 12;
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(60);
+    doc.text('By signing below, the Instructor acknowledges that they have read, understood, and', pageW / 2, y, { align: 'center' });
+    y += 5;
+    doc.text('agree to all terms and conditions of the JUNBI Pro Independent Instructor Agreement.', pageW / 2, y, { align: 'center' });
+    y += 16;
+
+    // Instructor info
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(26, 26, 46);
+    doc.text('Instructor Name:', margin, y);
+    doc.setFont('helvetica', 'normal');
+    doc.text(name, margin + 42, y);
+    y += 8;
+
+    doc.setFont('helvetica', 'bold');
+    doc.text('Date Signed:', margin, y);
+    doc.setFont('helvetica', 'normal');
+    doc.text(formattedDate, margin + 42, y);
+    y += 12;
+
+    // Signature
+    doc.setFont('helvetica', 'bold');
+    doc.text('Signature:', margin, y);
+    y += 4;
+
+    // Draw signature image
+    try {
+      doc.addImage(signatureImage, 'PNG', margin, y, 80, 30);
+    } catch(e) {
+      doc.text('[Signature captured digitally]', margin, y + 10);
+    }
+    y += 35;
+
+    // Signature line
+    doc.setDrawColor(150);
+    doc.setLineWidth(0.3);
+    doc.line(margin, y, margin + 80, y);
+    y += 5;
+    doc.setFontSize(8);
+    doc.setTextColor(120);
+    doc.text('Instructor Signature', margin, y);
+
+    y += 16;
+    doc.setDrawColor(200);
+    doc.setLineWidth(0.2);
+    doc.line(margin, y, pageW - margin, y);
+    y += 8;
+
+    // Company signature block
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(26, 26, 46);
+    doc.text('For JUNBI Pro:', margin, y);
+    y += 10;
+
+    doc.setDrawColor(150);
+    doc.setLineWidth(0.3);
+    doc.line(margin, y, margin + 80, y);
+    y += 5;
+    doc.setFontSize(8);
+    doc.setTextColor(120);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Authorized Representative', margin, y);
+    y += 6;
+    doc.line(margin, y + 4, margin + 80, y + 4);
+    y += 9;
+    doc.text('Date', margin, y);
+
+    // Footer
+    y = 260;
+    doc.setFontSize(7.5);
+    doc.setTextColor(160);
+    doc.text('JUNBI Pro Instructor Agreement v1.0 — Signed digitally on ' + formattedDate, pageW / 2, y, { align: 'center' });
+
+    return doc;
+  }
 
   // --- Submit ---
   submitBtn.addEventListener('click', function() {
@@ -407,20 +567,37 @@
       year: 'numeric', month: 'long', day: 'numeric'
     });
 
-    // Disable button and show sending state
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Sending...';
+    submitBtn.textContent = 'Generating & sending...';
 
-    // Send via EmailJS
+    // Generate the signed PDF
+    var signedPDF;
+    try {
+      signedPDF = generateSignedPDF(name, formattedDate, signatureImage);
+    } catch(e) {
+      console.error('PDF generation error:', e);
+    }
+
+    // Convert PDF to base64 for email
+    var pdfBase64 = '';
+    if (signedPDF) {
+      pdfBase64 = signedPDF.output('datauristring');
+    }
+
+    // Send email notification (without the huge base64 — just the key details)
     emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
       instructor_name: name,
       sign_date: formattedDate,
-      signature_image: signatureImage,
       agreement_version: 'JUNBI Pro Instructor Agreement v1.0',
       signed_at: new Date().toISOString()
     })
     .then(function() {
-      // Success — show confirmation
+      // Auto-download the signed PDF for the instructor
+      if (signedPDF) {
+        signedPDF.save('JUNBI_Pro_Agreement_Signed_' + name.replace(/\s+/g, '_') + '.pdf');
+      }
+
+      // Show confirmation
       document.getElementById('contractCard').style.display = 'none';
       document.getElementById('signCard').style.display = 'none';
 
@@ -430,16 +607,19 @@
 
       const conf = document.getElementById('confirmation');
       conf.style.display = 'block';
-      document.getElementById('confirmText').textContent =
-        'Signed by ' + name + ' on ' + formattedDate +
-        '. A copy has been sent to JUNBI Pro for your records.';
+      document.getElementById('confirmText').innerHTML =
+        'Signed by <strong>' + name + '</strong> on ' + formattedDate +
+        '.<br>A signed PDF has been downloaded to your device. Please email it to <a href="mailto:mike.moh@gmail.com?subject=Signed JUNBI Pro Agreement — ' + encodeURIComponent(name) + '">mike.moh@gmail.com</a> for your records.';
     })
     .catch(function(error) {
-      // Error — let them retry
       console.error('EmailJS error:', error);
+      // Still download the PDF even if email fails
+      if (signedPDF) {
+        signedPDF.save('JUNBI_Pro_Agreement_Signed_' + name.replace(/\s+/g, '_') + '.pdf');
+      }
       submitBtn.disabled = false;
       submitBtn.textContent = 'Sign Agreement';
-      alert('There was an issue submitting your signature. Please try again. If the problem persists, contact JUNBI Pro directly.');
+      alert('Your signed PDF has been downloaded. There was an issue sending the notification — please email the PDF to mike.moh@gmail.com directly.');
     });
   });
 })();
