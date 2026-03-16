@@ -609,7 +609,7 @@
       conf.style.display = 'block';
       document.getElementById('confirmText').innerHTML =
         'Signed by <strong>' + name + '</strong> on ' + formattedDate +
-        '.<br>A signed PDF has been downloaded to your device. Please email it to <a href="mailto:mike.moh@gmail.com?subject=Signed JUNBI Pro Agreement — ' + encodeURIComponent(name) + '">mike.moh@gmail.com</a> for your records.';
+        '.<br>A signed PDF has been downloaded to your device. Please email it to <a href="mailto:mmoh@lvlupma.com?subject=Signed JUNBI Pro Agreement — ' + encodeURIComponent(name) + '">mmoh@lvlupma.com</a> for your records.';
     })
     .catch(function(error) {
       console.error('EmailJS error:', error);
@@ -619,7 +619,7 @@
       }
       submitBtn.disabled = false;
       submitBtn.textContent = 'Sign Agreement';
-      alert('Your signed PDF has been downloaded. There was an issue sending the notification — please email the PDF to mike.moh@gmail.com directly.');
+      alert('Your signed PDF has been downloaded. There was an issue sending the notification — please email the PDF to mmoh@lvlupma.com directly.');
     });
   });
 })();
